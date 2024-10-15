@@ -3,6 +3,7 @@ aiogram
 # uvloop  # windows not supported (uncomment if you are on Linux)
 ujson
 aiohttp[speedups]
+#aiohttp[speedups]==3.9.5 # for windows use this instead
 aiodns
 
 # Or choose manually what to install ...
