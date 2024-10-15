@@ -1,15 +1,14 @@
-import logging
-from aiogram import Bot, Dispatcher
-from aiogram.client.bot import DefaultBotProperties
-import config
+from aiogram import Dispatcher
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+from fluent_loader import get_fluent_localization
+from middlewares import L10nMiddleware
 
-# prerequisites
-if not config.BOT_TOKEN:
-    exit("No token provided")
+# init locale
+locale = get_fluent_localization()
 
-# init
-bot = Bot(token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
+# init dispatcher
 dp = Dispatcher()
+
+# Apply middlewares
+dp.message.outer_middleware(L10nMiddleware(locale))
+dp.pre_checkout_query.outer_middleware(L10nMiddleware(locale))

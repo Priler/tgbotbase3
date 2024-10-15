@@ -1,0 +1,28 @@
+[bot]
+# Bot token
+token = ""
+
+# Bot owners
+owners = []
+
+[logs]
+# true, if the log should display date and time of events
+show_datetime = true
+
+# Date and time format in logs
+datetime_format = "%Y-%m-%d %H:%M:%S"
+
+# true if you need to display logs of all levels, including debug
+# false if everything EXCEPT debug
+show_debug_logs = true
+
+# true, if date and time should be displayed in UTC
+time_in_utc = false
+
+# Logs format: json or console
+renderer = "console"
+
+# true if the "console" format should have color output
+# (may not be available on every OS)
+# see https://www.structlog.org/en/stable/getting-started.html#your-first-log-entry
+use_colors_in_console = true

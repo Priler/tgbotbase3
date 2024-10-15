@@ -1,30 +1,24 @@
-from aiogram import types
-from dispatcher import dp, bot
+import structlog
+from aiogram import Router, F
 from aiogram.filters import Command
+from aiogram.types import Message
 
-from aiogram import F
-from filters import IsOwnerFilter
+from fluent.runtime import FluentLocalization
 
-import config
-import utils
+# Declare router
+router = Router()
+router.message.filter(F.chat.type == "private")
 
-@dp.message(
-    Command(commands=["start"]),
-)
-async def cmd_start_bot(message: types.Message):
-    await bot.send_message(message.chat.id, "<b>👊 Hello, world!</b>")
+# Declare logger
+logger = structlog.get_logger()
 
-
-# Here is some example !ping command ...
-@dp.message(
-    IsOwnerFilter(is_owner=True),
-    Command(commands=["ping"]),
-)
-async def cmd_ping_bot(message: types.Message):
-    await message.reply("<b>👊 Up & Running!</b>\n\n")
+# Declare handlers
+@router.message(Command("start"))
+async def cmd_owner_hello(message: Message, l10n: FluentLocalization):
+    await message.answer(l10n.format_value("hello-msg"))
 
 
 # Here is some example content types command ...
-@dp.message(F.content_type.in_({'photo', 'video'}))
-async def cmd_media_react_bot(message: types.message):
-    await message.reply("<b>🫡 Nice media (I guess)!</b>\n\n")
+@router.message(F.content_type.in_({'photo', 'video'}))
+async def cmd_media_react_bot(message: Message, l10n: FluentLocalization):
+    await message.reply(l10n.format_value("media-msg"))
