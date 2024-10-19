@@ -1,6 +1,6 @@
 import structlog
 from aiogram import Router, F
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram.types import Message
 
 from fluent.runtime import FluentLocalization
