@@ -1,7 +1,7 @@
 import structlog
 from aiogram import Router, F, Bot
 from aiogram.filters import Command, CommandStart, CommandObject
-from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, InlineKeyboardMarkup
+from aiogram.types import Message, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from fluent.runtime import FluentLocalization
