@@ -12,3 +12,4 @@ dp = Dispatcher()
 # Apply middlewares
 dp.message.outer_middleware(L10nMiddleware(locale))
 dp.pre_checkout_query.outer_middleware(L10nMiddleware(locale))
+dp.callback_query.outer_middleware(L10nMiddleware(locale))
