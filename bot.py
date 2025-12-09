@@ -8,7 +8,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from structlog.typing import FilteringBoundLogger
 
-from config_reader import get_config, BotConfig, LogConfig, L10nConfig
+from config_reader import get_config, BotConfig, LogConfig, L10nConfig, ThrottlingConfig
 from logs import get_structlog_config
 from fluent_loader import get_fluent_localization
 from middlewares import L10nMiddleware, ThrottlingMiddleware
@@ -30,14 +30,19 @@ async def on_shutdown(bot: Bot, logger: FilteringBoundLogger) -> None:
     await logger.ainfo("Bot stopped")
 
 
-def setup_middlewares(dp: Dispatcher, l10n_config: L10nConfig) -> None:
+def setup_middlewares(dp: Dispatcher, l10n_config: L10nConfig, throttling_config: ThrottlingConfig) -> None:
     """Register all middlewares."""
     locale = get_fluent_localization(
         locale=l10n_config.default_locale,
         locales_dir=l10n_config.locales_path,
     )
 
-    dp.message.outer_middleware(ThrottlingMiddleware(rate_limit=0.5))
+    if throttling_config.enabled:
+        dp.message.outer_middleware(ThrottlingMiddleware(
+            rate_limit=throttling_config.rate_limit,
+            max_users=throttling_config.max_users,
+        ))
+
     dp.message.outer_middleware(L10nMiddleware(locale))
     dp.callback_query.outer_middleware(L10nMiddleware(locale))
     dp.pre_checkout_query.outer_middleware(L10nMiddleware(locale))
@@ -53,6 +58,11 @@ async def main() -> None:
     bot_config = get_config(model=BotConfig, root_key="bot")
     l10n_config = get_config(model=L10nConfig, root_key="localization")
 
+    try:
+        throttling_config = get_config(model=ThrottlingConfig, root_key="throttling")
+    except KeyError:
+        throttling_config = ThrottlingConfig()  # Use defaults
+
     bot = Bot(
         token=bot_config.token.get_secret_value(),
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
@@ -60,7 +70,7 @@ async def main() -> None:
 
     dp = Dispatcher()
 
-    setup_middlewares(dp, l10n_config)
+    setup_middlewares(dp, l10n_config, throttling_config)
     register_all_handlers(dp)
 
     stop_event = asyncio.Event()

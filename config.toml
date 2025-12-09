@@ -1,11 +1,10 @@
 [bot]
 # Bot token from @BotFather
 # Can also be set via BOT_TOKEN environment variable
-token = "312415123:asdzxcADFxasdas_asdzxc-nFfa21as" # lol that's not real token, replace it with yours xD
+token = ""
 
 # Bot owner user IDs (comma-separated if using env var)
 # Can also be set via BOT_OWNERS environment variable
-# (you can get your ID via bots like @ScanIDBot)
 owners = []
 
 [logs]
@@ -36,3 +35,13 @@ fallback_locale = "en"
 
 # Path to localization files directory
 locales_path = "l10n"
+
+[throttling]
+# Enable rate limiting
+enabled = true
+
+# Minimum seconds between messages per user
+rate_limit = 0.5
+
+# Maximum number of users to track in memory
+max_users = 10000

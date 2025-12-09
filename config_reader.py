@@ -53,6 +53,13 @@ class L10nConfig(BaseModel):
     locales_path: str = "l10n"
 
 
+class ThrottlingConfig(BaseModel):
+    """Rate limiting configuration."""
+    enabled: bool = True
+    rate_limit: float = 0.5  # seconds between messages
+    max_users: int = 10000  # max users to track
+
+
 class Config(BaseModel):
     """Root configuration model."""
     bot: BotConfig
