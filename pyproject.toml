@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tgbotbase"
+version = "1.0.0"
+description = "Telegram bot template using aiogram 3.x"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+keywords = ["telegram", "bot", "aiogram", "template"]
+
+dependencies = [
+    "aiogram>=3.4.0",
+    "aiohttp[speedups]>=3.9.0",
+    "structlog>=24.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "fluent.runtime>=0.4.0",
+    "fluent.syntax>=0.19.0",
+    "cachetools>=5.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+database = [
+    "aiosqlite>=0.19.0",
+]
+redis = [
+    "redis>=5.0.0",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ASYNC"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true

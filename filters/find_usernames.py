@@ -1,25 +1,35 @@
-from typing import Union, Dict, Any
+from typing import Union
 
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
 
 class HasUsernamesFilter(BaseFilter):
-    async def __call__(self, message: Message) -> Union[bool, Dict[str, Any]]:
-        # If there are no entities at all, None will be returned,
-        # in this case we assume that this is an empty list
+    """
+    Filter that extracts mentioned usernames from message.
+
+    If usernames are found, they are passed to the handler as 'usernames' argument.
+
+    Usage:
+        @router.message(HasUsernamesFilter())
+        async def handler(message: Message, usernames: list[str]):
+            for username in usernames:
+                await message.answer(f"Found: {username}")
+    """
+
+    async def __call__(self, message: Message) -> Union[bool, dict[str, list[str]]]:
         entities = message.entities or []
 
-        # Check for any usernames and extract them from the text
-        # using the extract_from() method
+        if not message.text:
+            return False
+
         found_usernames = [
-            item.extract_from(message.text) for item in entities
+            item.extract_from(message.text)
+            for item in entities
             if item.type == "mention"
         ]
 
-        # If there are usernames, then “push” them into the handler
-        # as "usernames"
-        if len(found_usernames) > 0:
+        if found_usernames:
             return {"usernames": found_usernames}
-        # If we didn't find any usernames, return False
+
         return False

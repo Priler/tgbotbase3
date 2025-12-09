@@ -1,34 +1,50 @@
 from pathlib import Path
+from typing import Optional, Union
 
 from fluent.runtime import FluentLocalization, FluentResourceLoader
 
 
-def get_fluent_localization() -> FluentLocalization:
+def get_fluent_localization(
+    locale: str = "en",
+    locales_dir: Optional[Union[str, Path]] = None,
+) -> FluentLocalization:
     """
-    Load locales file 'locale.ftl; from 'l10n' directory
-    :return: FluentLocalization object
-    """
+    Load Fluent localization files.
 
-    # Checks to make sure there's
-    # the correct file in the correct directory
-    locale_dir = Path(__file__).parent.joinpath("l10n")
-    if not locale_dir.exists():
-        error = "'l10n' directory not found"
-        raise FileNotFoundError(error)
-    if not locale_dir.is_dir():
-        error = "'l10n' is not a directory"
-        raise NotADirectoryError(error)
-    locale_file = Path(locale_dir, "locale.ftl")
+    Args:
+        locale: Locale code (e.g., 'en', 'ru')
+        locales_dir: Path to localization directory
+
+    Returns:
+        Configured FluentLocalization instance
+
+    Raises:
+        FileNotFoundError: If localization directory or files not found
+    """
+    if locales_dir is None:
+        locales_dir = Path(__file__).parent / "l10n"
+    elif isinstance(locales_dir, str):
+        locales_dir = Path(locales_dir)
+
+    if not locales_dir.exists():
+        raise FileNotFoundError(f"Localization directory not found: {locales_dir}")
+
+    if not locales_dir.is_dir():
+        raise NotADirectoryError(f"'{locales_dir}' is not a directory")
+
+    locale_file = locales_dir / f"{locale}.ftl"
     if not locale_file.exists():
-        error = "locale.txt file not found"
-        raise FileNotFoundError(error)
+        locale_file = locales_dir / "locale.ftl"
 
-    # Create the necessary objects and return a FluentLocalization object
-    l10n_loader = FluentResourceLoader(
-        str(locale_file.absolute()),
-    )
+    if not locale_file.exists():
+        raise FileNotFoundError(
+            f"No locale file found for '{locale}' in {locales_dir}"
+        )
+
+    loader = FluentResourceLoader(str(locale_file.absolute()))
+
     return FluentLocalization(
-        locales=["ru"],
+        locales=[locale],
         resource_ids=[str(locale_file.absolute())],
-        resource_loader=l10n_loader
+        resource_loader=loader,
     )

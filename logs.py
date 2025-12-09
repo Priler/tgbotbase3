@@ -1,5 +1,6 @@
 import logging
 from json import dumps
+from typing import Any
 
 import structlog
 from structlog import WriteLoggerFactory
@@ -7,82 +8,73 @@ from structlog import WriteLoggerFactory
 from config_reader import LogConfig, LogRenderer
 
 
-def get_structlog_config(
-    log_config: LogConfig
-) -> dict:
+def get_structlog_config(log_config: LogConfig) -> dict[str, Any]:
     """
-    Get config for structlog
-    :param log_config: объект LogConfig with log parameters
-    :return: dict with structlog config
-    """
+    Build structlog configuration dictionary.
 
-    # Show debug level logs?
-    if log_config.show_debug_logs is True:
-        min_level = logging.DEBUG
-    else:
-        min_level = logging.INFO
+    Args:
+        log_config: Log configuration object
+
+    Returns:
+        Configuration dict for structlog.configure()
+    """
+    min_level = logging.DEBUG if log_config.show_debug_logs else logging.INFO
 
     return {
         "processors": get_processors(log_config),
         "cache_logger_on_first_use": True,
         "wrapper_class": structlog.make_filtering_bound_logger(min_level),
-        "logger_factory": WriteLoggerFactory()
+        "logger_factory": WriteLoggerFactory(),
     }
 
 
 def get_processors(log_config: LogConfig) -> list:
     """
-    Returns processors list for structlog
-    :param log_config: LogConfig object with log parameters
-    :return: processors list for structlog
+    Build list of structlog processors.
+
+    Args:
+        log_config: Log configuration object
+
+    Returns:
+        List of processor functions
     """
-    def custom_json_serializer(data, *args, **kwargs):
-        """
-        JSON-objects custom serializer
-        """
-        result = dict()
 
+    def custom_json_serializer(data: dict, *args, **kwargs) -> str:
+        """Custom JSON serializer with ordered keys."""
+        result = {}
 
-        if log_config.show_datetime is True:
+        if log_config.show_datetime and "timestamp" in data:
             result["timestamp"] = data.pop("timestamp")
 
-        # Other two keys goes in this order
         for key in ("level", "event"):
             if key in data:
                 result[key] = data.pop(key)
 
-        # Remaining keys will be printed "as is"
-        # (usually in alphabet order)
         result.update(**data)
         return dumps(result, default=str)
 
-    processors = list()
+    processors = []
 
-    # In some cases there is no need to print a timestamp,
-    # because it is already added by an upstream service, such as systemd
-    if log_config.show_datetime is True:
-        processors.append(structlog.processors.TimeStamper(
-            fmt=log_config.datetime_format,
-            utc=log_config.time_in_utc
+    if log_config.show_datetime:
+        processors.append(
+            structlog.processors.TimeStamper(
+                fmt=log_config.datetime_format,
+                utc=log_config.time_in_utc,
             )
         )
 
-    # Always add a log level
     processors.append(structlog.processors.add_log_level)
 
-    # Render selection: JSON or for output to terminal
     if log_config.renderer == LogRenderer.JSON:
-        processors.append(structlog.processors.JSONRenderer(serializer=custom_json_serializer))
+        processors.append(
+            structlog.processors.JSONRenderer(serializer=custom_json_serializer)
+        )
     else:
-        processors.append(structlog.dev.ConsoleRenderer(
-            # You can turn off colors in the logs
-            colors=log_config.use_colors_in_console,
-            # You can remove padding in levels, i.e. instead of
-            # [info   ] Some info log
-            # [warning] Some warning log
-            # will be
-            # [info] Some info log
-            # [warning] Some warning log
-            pad_level=True
-        ))
+        processors.append(
+            structlog.dev.ConsoleRenderer(
+                colors=log_config.use_colors_in_console,
+                pad_level=True,
+            )
+        )
+
     return processors

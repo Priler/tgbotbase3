@@ -1,28 +1,38 @@
 [bot]
-# Bot token
-token = ""
+# Bot token from @BotFather
+# Can also be set via BOT_TOKEN environment variable
+token = "312415123:asdzxcADFxasdas_asdzxc-nFfa21as" # lol that's not real token, replace it with yours xD
 
-# Bot owners
+# Bot owner user IDs (comma-separated if using env var)
+# Can also be set via BOT_OWNERS environment variable
+# (you can get your ID via bots like @ScanIDBot)
 owners = []
 
 [logs]
-# true, if the log should display date and time of events
+# Show date and time in logs
 show_datetime = true
 
-# Date and time format in logs
+# Date and time format
 datetime_format = "%Y-%m-%d %H:%M:%S"
 
-# true if you need to display logs of all levels, including debug
-# false if everything EXCEPT debug
+# Show debug level logs
 show_debug_logs = true
 
-# true, if date and time should be displayed in UTC
+# Use UTC timezone for timestamps
 time_in_utc = false
 
-# Logs format: json or console
+# Log renderer: "json" or "console"
 renderer = "console"
 
-# true if the "console" format should have color output
-# (may not be available on every OS)
-# see https://www.structlog.org/en/stable/getting-started.html#your-first-log-entry
+# Enable colored output in console mode
 use_colors_in_console = true
+
+[localization]
+# Default locale for messages
+default_locale = "en"
+
+# Fallback locale if translation not found
+fallback_locale = "en"
+
+# Path to localization files directory
+locales_path = "l10n"
