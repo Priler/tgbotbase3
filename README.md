@@ -206,4 +206,4 @@ async def greet(message: Message, l10n: FluentLocalization) -> None:
 
 ## License
 
-MIT License
+MIT License (hell yeah!)
